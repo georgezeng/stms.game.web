@@ -67,6 +67,24 @@ public class PlayService {
 			throw new BusinessException("正在游玩中，不允许进入房间");
 		}
 	}
+	
+
+	/**
+	 * 退出房间
+	 * 
+	 * @param roomNumber
+	 * @param nickname
+	 */
+	public void exit(String roomNumber, String nickname) {
+		Room room = roomMap.get(roomNumber);
+		if (room == null) {
+			throw new BusinessException("没有此房间");
+		}
+		if(room.getStatus().equals(RoomStatus.In)) {
+			throw new BusinessException("正在游戏中，不能退出");
+		}
+		room.removePlayer(nickname);
+	}
 
 	/**
 	 * 开始发牌

@@ -30,6 +30,12 @@ public class PlayController {
 		return new ResultBean<>();
 	}
 
+	@RequestMapping(path = "/exitRoom/{roomNumber}/{nickname}")
+	public ResultBean<Void> exit(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
+		service.exit(roomNumber, nickname);
+		return new ResultBean<>();
+	}
+
 	@RequestMapping(path = "/startGame/{roomNumber}/{nickname}")
 	public ResultBean<Void> startGame(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
 		service.startGame(roomNumber, nickname);
