@@ -173,7 +173,7 @@ public class PlayService {
 	}
 
 	/**
-	 * 翻牌 (锁定出牌)
+	 * 出牌
 	 * 
 	 * @param roomNumber
 	 * @param nickname
@@ -183,7 +183,7 @@ public class PlayService {
 		Room room = roomMap.get(roomNumber);
 		if (room != null) {
 			Player player = room.getPlayer(nickname);
-			if (!player.getStatus().equals(PlayerStatus.Locked)) {
+			if (!PlayerStatus.Locked.equals(player.getStatus())) {
 				int ghostCount = 0;
 				for (Card card : player.getCards()) {
 					switch (card) {
@@ -206,7 +206,7 @@ public class PlayService {
 					}
 				} else {
 					if (ghostCount == 1 && player.getCards().size() == 2) {
-						throw new BusinessException("必须补牌才能翻牌");
+						throw new BusinessException("必须补牌才能出牌");
 					}
 					if (ghostCount == 1) {
 						Collections.sort(player.getCards(), new Comparator<Card>() {
@@ -347,7 +347,9 @@ public class PlayService {
 					}
 				}
 				player.setStatus(PlayerStatus.Locked);
-				room.getStage().nextTurn();
+				if (room.getStage().getCurrentTurn() == player.getIndex()) {
+					room.getStage().nextTurn();
+				}
 			}
 		}
 	}
@@ -372,10 +374,12 @@ public class PlayService {
 					}
 					if (player.getTimes().getPriority() < comparePlayer.getTimes().getPriority()) {
 						player.setStageAmount(player.getStageAmount() + player.getTimes().getValue());
-//						comparePlayer.setStageAmount(comparePlayer.getStageAmount() - player.getTimes().getValue());
 					} else if (player.getTimes().getPriority() > comparePlayer.getTimes().getPriority()) {
 						player.setStageAmount(player.getStageAmount() - comparePlayer.getTimes().getValue());
-//						comparePlayer.setStageAmount(comparePlayer.getStageAmount() + player.getTimes().getValue());
+					} else if (player.getPoints() > comparePlayer.getPoints()) {
+						player.setStageAmount(player.getStageAmount() + player.getTimes().getValue());
+					} else if (player.getPoints() < comparePlayer.getPoints()) {
+						player.setStageAmount(player.getStageAmount() - comparePlayer.getTimes().getValue());
 					}
 				}
 				player.setAmount(player.getAmount() + player.getStageAmount());
