@@ -12,7 +12,7 @@ public class PlayStage {
 	private Stack<Card> cards = Cards.shuffle();
 	private List<Player> players;
 	private int currentPlayerIndex;
-	private Card extraGhost = Cards.shuffle().firstElement();
+	private Card extraGhost = Cards.shuffleForExtraGhost().firstElement();
 
 	public Card getExtraGhost() {
 		return extraGhost;
@@ -41,7 +41,6 @@ public class PlayStage {
 	public void assginCards(int count) {
 		for (int i = 0; i < count; i++) {
 			for (Player player : players) {
-				player.setStatus(PlayerStatus.In);
 				player.addCards(cards.pop());
 			}
 		}
@@ -49,7 +48,6 @@ public class PlayStage {
 
 	public void fillCard(Player player) {
 		if (player.getCards().size() < 3) {
-			player.setStatus(PlayerStatus.Filled);
 			player.addCards(cards.pop());
 			return;
 		}

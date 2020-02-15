@@ -42,12 +42,6 @@ public class PlayController {
 		return new ResultBean<>();
 	}
 
-	@RequestMapping(path = "/fillCard/{roomNumber}/{nickname}")
-	public ResultBean<Void> fillCard(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
-		service.fillCard(roomNumber, nickname);
-		return new ResultBean<>();
-	}
-
 	@RequestMapping(path = "/endGame/{roomNumber}/{nickname}")
 	public ResultBean<Void> endGame(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
 		service.endGame(roomNumber, nickname);
@@ -60,9 +54,10 @@ public class PlayController {
 		return new ResultBean<>();
 	}
 
-	@RequestMapping(path = "/lockCards/{roomNumber}/{nickname}")
-	public ResultBean<Void> lockCards(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
-		service.lock(roomNumber, nickname);
+	@RequestMapping(path = "/lockCards/{roomNumber}/{nickname}/{toFill}")
+	public ResultBean<Void> lockCards(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname,
+			@PathVariable("toFill") boolean toFill) {
+		service.lock(roomNumber, nickname, toFill);
 		return new ResultBean<>();
 	}
 

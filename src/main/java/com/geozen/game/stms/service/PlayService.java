@@ -54,18 +54,19 @@ public class PlayService {
 		if (room == null) {
 			throw new BusinessException("没有此房间");
 		}
-		if (room.isOccupied(nickname)) {
-			throw new BusinessException("用户已存在，请换个昵称");
-		}
-		switch (room.getStatus()) {
-		case Wait:
-			room.addPlayer(nickname);
-			break;
-		case End:
-			throw new BusinessException("游戏结束，不允许进入房间");
-		case In:
-			throw new BusinessException("正在游玩中，不允许进入房间");
-		}
+//		if (room.isOccupied(nickname)) {
+//			throw new BusinessException("用户已存在，请换个昵称");
+//		}
+		room.addPlayer(nickname);
+//		switch (room.getStatus()) {
+//		case Wait:
+//			room.addPlayer(nickname);
+//			break;
+//		case End:
+//			throw new BusinessException("游戏结束，不允许进入房间");
+//		case In:
+//			throw new BusinessException("正在游玩中，不允许进入房间");
+//		}
 	}
 
 	/**
@@ -122,25 +123,6 @@ public class PlayService {
 	}
 
 	/**
-	 * 补牌
-	 * 
-	 * @param roomNumber
-	 * @param nickname
-	 */
-	public void fillCard(String roomNumber, String nickname) {
-		Room room = roomMap.get(roomNumber);
-		if (room != null) {
-			PlayStage stage = room.getStage();
-			Player player = room.getPlayer(nickname);
-			if (stage.getCurrentTurn() != player.getIndex()) {
-				throw new BusinessException("不能补牌，还没轮到您");
-			}
-			stage.fillCard(player);
-			room.getStage().nextTurn();
-		}
-	}
-
-	/**
 	 * 结束游戏
 	 * 
 	 * @param roomNumber
@@ -173,27 +155,35 @@ public class PlayService {
 	}
 
 	/**
-	 * 出牌
+	 * 锁牌
 	 * 
 	 * @param roomNumber
 	 * @param nickname
 	 */
 	@SuppressWarnings("incomplete-switch")
-	public void lock(String roomNumber, String nickname) {
+	public void lock(String roomNumber, String nickname, boolean toFill) {
 		Room room = roomMap.get(roomNumber);
 		if (room != null) {
+			PlayStage stage = room.getStage();
 			Player player = room.getPlayer(nickname);
 			if (!PlayerStatus.Locked.equals(player.getStatus())) {
+				if (toFill) {
+					if (stage.getCurrentTurn() != player.getIndex()) {
+						throw new BusinessException("还没轮到您");
+					}
+					stage.fillCard(player);
+				}
 				int ghostCount = 0;
 				for (Card card : player.getCards()) {
-					switch (card) {
-					case JK1:
-					case JK2:
-						ghostCount++;
-						break;
-					}
 					if (card.equals(room.getStage().getExtraGhost())) {
 						ghostCount++;
+					} else {
+						switch (card) {
+						case JK1:
+						case JK2:
+							ghostCount++;
+							break;
+						}
 					}
 				}
 				if (ghostCount == 3) {
@@ -206,7 +196,7 @@ public class PlayService {
 					}
 				} else {
 					if (ghostCount == 1 && player.getCards().size() == 2) {
-						throw new BusinessException("必须补牌才能出牌");
+						throw new BusinessException("必须补牌");
 					}
 					if (ghostCount == 1) {
 						Collections.sort(player.getCards(), new Comparator<Card>() {
@@ -347,9 +337,7 @@ public class PlayService {
 					}
 				}
 				player.setStatus(PlayerStatus.Locked);
-				if (room.getStage().getCurrentTurn() == player.getIndex()) {
-					room.getStage().nextTurn();
-				}
+				room.getStage().nextTurn();
 			}
 		}
 	}
@@ -372,7 +360,9 @@ public class PlayService {
 					if (player.equals(comparePlayer)) {
 						continue;
 					}
-					if (player.getTimes().getPriority() < comparePlayer.getTimes().getPriority()) {
+					if(CardTimes.Bug.equals(player.getTimes()) && CardTimes.DoubleGhost.equals(comparePlayer.getTimes())) {
+						player.setStageAmount(player.getStageAmount() + comparePlayer.getTimes().getValue());
+					} else if (player.getTimes().getPriority() < comparePlayer.getTimes().getPriority()) {
 						player.setStageAmount(player.getStageAmount() + player.getTimes().getValue());
 					} else if (player.getTimes().getPriority() > comparePlayer.getTimes().getPriority()) {
 						player.setStageAmount(player.getStageAmount() - comparePlayer.getTimes().getValue());

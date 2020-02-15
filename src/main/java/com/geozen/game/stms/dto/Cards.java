@@ -75,13 +75,25 @@ public class Cards {
 		cards.add(Card.CK);
 		cards.add(Card.DK);
 
-		cards.add(Card.JK1);
-		cards.add(Card.JK2);
-//		cards.add(Card.JK3);
-//		cards.add(Card.JK4);
+	}
+
+	private static final Set<Card> cardsWithJokers = new LinkedHashSet<>(cards);
+	static {
+
+		cardsWithJokers.add(Card.JK1);
+		cardsWithJokers.add(Card.JK2);
 	}
 
 	public static Stack<Card> shuffle() {
+		Stack<Card> stack = new Stack<>();
+		cardsWithJokers.stream().forEach(card -> {
+			stack.push(card);
+		});
+		Collections.shuffle(stack);
+		return stack;
+	}
+
+	public static Stack<Card> shuffleForExtraGhost() {
 		Stack<Card> stack = new Stack<>();
 		cards.stream().forEach(card -> {
 			stack.push(card);
@@ -89,5 +101,5 @@ public class Cards {
 		Collections.shuffle(stack);
 		return stack;
 	}
-	
+
 }
