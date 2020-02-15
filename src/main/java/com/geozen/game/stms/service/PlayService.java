@@ -235,6 +235,7 @@ public class PlayService {
 								player.setTimes(CardTimes.Bug);
 							} else {
 								player.setTimes(CardTimes.General);
+								player.setPoints(9);
 							}
 						}
 					} else {
