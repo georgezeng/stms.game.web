@@ -94,11 +94,20 @@ public class Player {
 		this.amount = amount;
 	}
 
+	@Override
 	public int hashCode() {
 		return nickname.hashCode();
 	}
 
+	@Override
 	public boolean equals(Object o) {
-		return nickname.equals(o);
+		if (o == null) {
+			return false;
+		}
+		if (o instanceof Player) {
+			Player p = (Player) o;
+			return nickname.equals(p.nickname);
+		}
+		return false;
 	}
 }

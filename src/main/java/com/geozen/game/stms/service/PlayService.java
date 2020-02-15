@@ -67,7 +67,6 @@ public class PlayService {
 			throw new BusinessException("正在游玩中，不允许进入房间");
 		}
 	}
-	
 
 	/**
 	 * 退出房间
@@ -80,10 +79,11 @@ public class PlayService {
 		if (room == null) {
 			throw new BusinessException("没有此房间");
 		}
-		if(room.getStatus().equals(RoomStatus.In)) {
+		if (room.getStatus().equals(RoomStatus.In)) {
 			throw new BusinessException("正在游戏中，不能退出");
+		} else if (room.getStatus().equals(RoomStatus.Wait)) {
+			room.removePlayer(nickname);
 		}
-		room.removePlayer(nickname);
 	}
 
 	/**
@@ -99,6 +99,9 @@ public class PlayService {
 		}
 		if (!room.isHost(nickname)) {
 			throw new BusinessException("不是房主，不能开始发牌");
+		}
+		if (room.getPlayers().size() < 2) {
+			throw new BusinessException("必须2个人以上才能游戏");
 		}
 		room.getPlayers().stream().forEach(player -> player.reset());
 		PlayStage stage = new PlayStage();
@@ -124,7 +127,7 @@ public class PlayService {
 	 * @param roomNumber
 	 * @param nickname
 	 */
-	public void fullfill(String roomNumber, String nickname) {
+	public void fillCard(String roomNumber, String nickname) {
 		Room room = roomMap.get(roomNumber);
 		if (room != null) {
 			PlayStage stage = room.getStage();
@@ -132,7 +135,8 @@ public class PlayService {
 			if (stage.getCurrentTurn() != player.getIndex()) {
 				throw new BusinessException("不能补牌，还没轮到您");
 			}
-			stage.fullfill(player);
+			stage.fillCard(player);
+			room.getStage().nextTurn();
 		}
 	}
 
@@ -147,6 +151,9 @@ public class PlayService {
 		if (room != null) {
 			if (!room.isHost(nickname)) {
 				throw new BusinessException("不是房主，不能结束游戏");
+			}
+			if (room.getStatus().equals(RoomStatus.In) && !room.getPlayers().stream().allMatch(player -> PlayerStatus.Locked.equals(player.getStatus()))) {
+				throw new BusinessException("本局未结束，不能结束游戏");
 			}
 			room.setStatus(RoomStatus.End);
 		}
@@ -176,169 +183,172 @@ public class PlayService {
 		Room room = roomMap.get(roomNumber);
 		if (room != null) {
 			Player player = room.getPlayer(nickname);
-			int ghostCount = 0;
-			for (Card card : player.getCards()) {
-				switch (card) {
-				case JK1:
-				case JK2:
-					ghostCount++;
-					break;
-				}
-				if (card.equals(room.getStage().getExtraGhost())) {
-					ghostCount++;
-				}
-			}
-			if (ghostCount == 3) {
-				player.setTimes(CardTimes.TrippleGhost);
-			} else if (ghostCount == 2) {
-				if (player.getCards().size() == 2) {
-					player.setTimes(CardTimes.DoubleGhost);
-				} else {
-					player.setTimes(CardTimes.Flush);
-				}
-			} else {
-				if (ghostCount == 1 && player.getCards().size() == 2) {
-					throw new BusinessException("必须补牌才能翻牌");
-				}
-				if (ghostCount == 1) {
-					Collections.sort(player.getCards(), new Comparator<Card>() {
-
-						@Override
-						public int compare(Card o1, Card o2) {
-							Integer idx1 = o1.getIndex();
-							Integer idx2 = o2.getIndex();
-							return idx1.compareTo(idx2);
-						}
-					});
-					int sameTypeCount = 0;
-					int points = 0;
-					String lastType = null;
-					for (Card card : player.getCards()) {
-						points += card.getPoint();
-						if (lastType != null && lastType.equals(card.getType())) {
-							sameTypeCount++;
-						}
-						lastType = card.getType();
+			if (!player.getStatus().equals(PlayerStatus.Locked)) {
+				int ghostCount = 0;
+				for (Card card : player.getCards()) {
+					switch (card) {
+					case JK1:
+					case JK2:
+						ghostCount++;
+						break;
 					}
-					points = points % 10;
-					player.setPoints(points);
-					boolean isSameType = sameTypeCount == 2;
-					int delta = player.getCards().get(2).getIndex() - player.getCards().get(1).getIndex();
-					if (delta > 0 && delta <= 2 || delta >= 11) {
-						if (isSameType) {
-							player.setTimes(CardTimes.Flush);
-						} else {
-							player.setTimes(CardTimes.Straight);
-						}
-					} else if (delta == 0) {
-						player.setTimes(CardTimes.SamePoints);
-					} else {
-						if (points == 0) {
-							player.setTimes(CardTimes.Bug);
-						} else {
-							player.setTimes(CardTimes.General);
-						}
+					if (card.equals(room.getStage().getExtraGhost())) {
+						ghostCount++;
 					}
-				} else {
+				}
+				if (ghostCount == 3) {
+					player.setTimes(CardTimes.TrippleGhost);
+				} else if (ghostCount == 2) {
 					if (player.getCards().size() == 2) {
-						int sameTypeCount = 0;
-						int points = 0;
-						String lastType = null;
-						for (Card card : player.getCards()) {
-							points += card.getPoint();
-							if (lastType != null && lastType.equals(card.getType())) {
-								sameTypeCount++;
-							}
-							lastType = card.getType();
-						}
-						points = points % 10;
-						player.setPoints(points);
-						// 木虱
-						if (points == 0) {
-							player.setTimes(CardTimes.Bug);
-						} else {
-							boolean isGodPoints = points > 7;
-							boolean isSameType = sameTypeCount == 2;
-							if (isGodPoints) {
-								// 双倍天公
-								if (isSameType) {
-									player.setTimes(CardTimes.DoubleGod);
-								} else {
-									player.setTimes(CardTimes.God);
-								}
-							} else {
-								// 两条同花
-								if (isSameType) {
-									player.setTimes(CardTimes.DoubleSameType);
-								} else {
-									player.setTimes(CardTimes.General);
-								}
-							}
-						}
+						player.setTimes(CardTimes.DoubleGhost);
 					} else {
-						int sameTypeCount = 0;
-						int points = 0;
-						String lastType = null;
+						player.setTimes(CardTimes.Flush);
+					}
+				} else {
+					if (ghostCount == 1 && player.getCards().size() == 2) {
+						throw new BusinessException("必须补牌才能翻牌");
+					}
+					if (ghostCount == 1) {
 						Collections.sort(player.getCards(), new Comparator<Card>() {
 
 							@Override
 							public int compare(Card o1, Card o2) {
-								Integer i1 = o1.getIndex();
-								Integer i2 = o2.getIndex();
-								return i1.compareTo(i2);
+								Integer idx1 = o1.getIndex();
+								Integer idx2 = o2.getIndex();
+								return idx1.compareTo(idx2);
 							}
 						});
-						int continueIndexCount = 0;
-						Card lastCard = null;
+						int sameTypeCount = 0;
+						int points = 0;
+						String lastType = null;
 						for (Card card : player.getCards()) {
 							points += card.getPoint();
-							if (lastCard != null) {
-								switch (lastCard.getIndex()) {
-								case 13: {
-									if (card.getIndex() == 1) {
-										continueIndexCount++;
-									}
-								}
-									break;
-								default: {
-									if (card.getIndex() - lastCard.getIndex() == 1) {
-										continueIndexCount++;
-									}
-								}
-								}
-							}
 							if (lastType != null && lastType.equals(card.getType())) {
 								sameTypeCount++;
 							}
 							lastType = card.getType();
-							lastCard = card;
 						}
-						boolean isSamePoint = points % 3 == 0;
 						points = points % 10;
 						player.setPoints(points);
-						boolean isSameType = sameTypeCount == 3;
-						boolean isStraight = continueIndexCount == 2;
-						if (isSameType) {
-							if (isStraight) {
+						boolean isSameType = sameTypeCount == 1;
+						int delta = player.getCards().get(2).getIndex() - player.getCards().get(1).getIndex();
+						if (delta > 0 && delta <= 2 || delta >= 11) {
+							if (isSameType) {
 								player.setTimes(CardTimes.Flush);
 							} else {
-								player.setTimes(CardTimes.TrippleSameType);
-							}
-						} else {
-							if (isStraight) {
 								player.setTimes(CardTimes.Straight);
-							} else if (isSamePoint) {
-								player.setTimes(CardTimes.TrippleSameType);
-							} else if (points == 0) {
+							}
+						} else if (delta == 0) {
+							player.setTimes(CardTimes.SamePoints);
+						} else {
+							if (points == 0) {
 								player.setTimes(CardTimes.Bug);
 							} else {
 								player.setTimes(CardTimes.General);
 							}
 						}
+					} else {
+						if (player.getCards().size() == 2) {
+							int sameTypeCount = 0;
+							int points = 0;
+							String lastType = null;
+							for (Card card : player.getCards()) {
+								points += card.getPoint();
+								if (lastType != null && lastType.equals(card.getType())) {
+									sameTypeCount++;
+								}
+								lastType = card.getType();
+							}
+							points = points % 10;
+							player.setPoints(points);
+							// 木虱
+							if (points == 0) {
+								player.setTimes(CardTimes.Bug);
+							} else {
+								boolean isGodPoints = points > 7;
+								boolean isSameType = sameTypeCount == 1;
+								if (isGodPoints) {
+									// 双倍天公
+									if (isSameType) {
+										player.setTimes(CardTimes.DoubleGod);
+									} else {
+										player.setTimes(CardTimes.God);
+									}
+								} else {
+									// 两条同花
+									if (isSameType) {
+										player.setTimes(CardTimes.DoubleSameType);
+									} else {
+										player.setTimes(CardTimes.General);
+									}
+								}
+							}
+						} else {
+							int sameTypeCount = 0;
+							int points = 0;
+							String lastType = null;
+							Collections.sort(player.getCards(), new Comparator<Card>() {
+
+								@Override
+								public int compare(Card o1, Card o2) {
+									Integer i1 = o1.getIndex();
+									Integer i2 = o2.getIndex();
+									return i1.compareTo(i2);
+								}
+							});
+							int continueIndexCount = 0;
+							Card lastCard = null;
+							for (Card card : player.getCards()) {
+								points += card.getPoint();
+								if (lastCard != null) {
+									switch (lastCard.getIndex()) {
+									case 13: {
+										if (card.getIndex() == 1) {
+											continueIndexCount++;
+										}
+									}
+										break;
+									default: {
+										if (card.getIndex() - lastCard.getIndex() == 1) {
+											continueIndexCount++;
+										}
+									}
+									}
+								}
+								if (lastType != null && lastType.equals(card.getType())) {
+									sameTypeCount++;
+								}
+								lastType = card.getType();
+								lastCard = card;
+							}
+							boolean isSamePoint = points % 3 == 0;
+							points = points % 10;
+							player.setPoints(points);
+							boolean isSameType = sameTypeCount == 2;
+							boolean isStraight = continueIndexCount == 2;
+							if (isSameType) {
+								if (isStraight) {
+									player.setTimes(CardTimes.Flush);
+								} else {
+									player.setTimes(CardTimes.TrippleSameType);
+								}
+							} else {
+								if (isStraight) {
+									player.setTimes(CardTimes.Straight);
+								} else if (isSamePoint) {
+									player.setTimes(CardTimes.TrippleSameType);
+								} else if (points == 0) {
+									player.setTimes(CardTimes.Bug);
+								} else {
+									player.setTimes(CardTimes.General);
+								}
+							}
+						}
 					}
 				}
+				player.setStatus(PlayerStatus.Locked);
+				room.getStage().nextTurn();
 			}
-			player.setStatus(PlayerStatus.Locked);
 		}
 	}
 
@@ -355,18 +365,20 @@ public class PlayService {
 				throw new BusinessException("不是房主，不能计算结果");
 			}
 			for (Player player : room.getPlayers()) {
+				player.setStageAmount(0);
 				for (Player comparePlayer : room.getPlayers()) {
 					if (player.equals(comparePlayer)) {
 						continue;
 					}
-					if (player.getTimes().getPriority() > comparePlayer.getTimes().getPriority()) {
+					if (player.getTimes().getPriority() < comparePlayer.getTimes().getPriority()) {
 						player.setStageAmount(player.getStageAmount() + player.getTimes().getValue());
-						comparePlayer.setStageAmount(comparePlayer.getStageAmount() - player.getTimes().getValue());
-					} else if (player.getTimes().getPriority() < comparePlayer.getTimes().getPriority()) {
+//						comparePlayer.setStageAmount(comparePlayer.getStageAmount() - player.getTimes().getValue());
+					} else if (player.getTimes().getPriority() > comparePlayer.getTimes().getPriority()) {
 						player.setStageAmount(player.getStageAmount() - comparePlayer.getTimes().getValue());
-						comparePlayer.setStageAmount(comparePlayer.getStageAmount() + player.getTimes().getValue());
+//						comparePlayer.setStageAmount(comparePlayer.getStageAmount() + player.getTimes().getValue());
 					}
 				}
+				player.setAmount(player.getAmount() + player.getStageAmount());
 			}
 		}
 	}

@@ -1,0 +1,22 @@
+{
+  "groups": [
+    {
+      "name": "super-admin",
+      "type": "com.geozen.game.stms.config.SuperAdminProperties",
+      "sourceType": "com.geozen.game.stms.config.SuperAdminProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "super-admin.password",
+      "type": "java.lang.String",
+      "sourceType": "com.geozen.game.stms.config.SuperAdminProperties"
+    },
+    {
+      "name": "super-admin.username",
+      "type": "java.lang.String",
+      "sourceType": "com.geozen.game.stms.config.SuperAdminProperties"
+    }
+  ],
+  "hints": []
+}

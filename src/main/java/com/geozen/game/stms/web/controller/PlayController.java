@@ -42,9 +42,9 @@ public class PlayController {
 		return new ResultBean<>();
 	}
 
-	@RequestMapping(path = "/fullfill/{roomNumber}/{nickname}")
-	public ResultBean<Void> fullfill(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
-		service.fullfill(roomNumber, nickname);
+	@RequestMapping(path = "/fillCard/{roomNumber}/{nickname}")
+	public ResultBean<Void> fillCard(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
+		service.fillCard(roomNumber, nickname);
 		return new ResultBean<>();
 	}
 

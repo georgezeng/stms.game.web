@@ -1,0 +1,8 @@
+remote.server: 172.26.176.62
+
+log.server: ${remote.server}
+
+super-admin:
+  username: admin
+  password: "Root!@#"
+    
