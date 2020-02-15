@@ -1,5 +1,0 @@
-super-admin:
-  username: admin
-  password: 111111
-
-server.port: 8081
