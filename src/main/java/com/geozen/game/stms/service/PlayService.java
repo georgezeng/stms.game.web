@@ -231,12 +231,8 @@ public class PlayService {
 						} else if (delta == 0) {
 							player.setTimes(CardTimes.SamePoints);
 						} else {
-							if (points == 0) {
-								player.setTimes(CardTimes.Bug);
-							} else {
-								player.setTimes(CardTimes.General);
-								player.setPoints(9);
-							}
+							player.setTimes(CardTimes.General);
+							player.setPoints(9);
 						}
 					} else {
 						if (player.getCards().size() == 2) {
