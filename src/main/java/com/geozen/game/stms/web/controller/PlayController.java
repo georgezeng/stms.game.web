@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.geozen.game.stms.domain.Room;
 import com.geozen.game.stms.dto.ResultBean;
+import com.geozen.game.stms.enums.RoomStatus;
 import com.geozen.game.stms.service.PlayService;
 
 @RestController
@@ -62,9 +63,8 @@ public class PlayController {
 	}
 
 	@RequestMapping(path = "/calResult/{roomNumber}/{nickname}")
-	public ResultBean<Void> calResult(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
-		service.calResult(roomNumber, nickname);
-		return new ResultBean<>();
+	public ResultBean<RoomStatus> calResult(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
+		return new ResultBean<>(service.calResult(roomNumber, nickname));
 	}
 
 }
