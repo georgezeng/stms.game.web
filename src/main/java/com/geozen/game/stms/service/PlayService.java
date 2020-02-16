@@ -246,6 +246,8 @@ public class PlayService {
 						} else {
 							if (isSameType) {
 								player.setTimes(CardTimes.TrippleSameType);
+							} else {
+								player.setTimes(CardTimes.General);
 							}
 							player.setPoints(9);
 						}
