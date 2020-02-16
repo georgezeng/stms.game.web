@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.geozen.game.stms.domain.PlayStage;
 import com.geozen.game.stms.domain.Player;
 import com.geozen.game.stms.domain.Room;
+import com.geozen.game.stms.dto.Cards;
 import com.geozen.game.stms.enums.Card;
 import com.geozen.game.stms.enums.CardTimes;
 import com.geozen.game.stms.enums.PlayerStatus;
@@ -175,7 +176,7 @@ public class PlayService {
 				}
 				int ghostCount = 0;
 				for (Card card : player.getCards()) {
-					if (card.equals(room.getStage().getExtraGhost())) {
+					if (card.getIndex() == room.getStage().getExtraGhost().getIndex()) {
 						ghostCount++;
 					} else {
 						switch (card) {
@@ -203,6 +204,11 @@ public class PlayService {
 
 							@Override
 							public int compare(Card o1, Card o2) {
+								if (room.getStage().getExtraGhost().equals(o1)) {
+									return -1;
+								} else if (room.getStage().getExtraGhost().equals(o2)) {
+									return 1;
+								}
 								Integer idx1 = o1.getIndex();
 								Integer idx2 = o2.getIndex();
 								return idx1.compareTo(idx2);
@@ -284,6 +290,7 @@ public class PlayService {
 								}
 							});
 							int continueIndexCount = 0;
+							int sameCardCount = 0;
 							Card lastCard = null;
 							for (Card card : player.getCards()) {
 								points += card.getPoint();
@@ -301,6 +308,9 @@ public class PlayService {
 										}
 									}
 									}
+									if (lastCard.getIndex() == card.getIndex()) {
+										sameCardCount++;
+									}
 								}
 								if (lastType != null && lastType.equals(card.getType())) {
 									sameTypeCount++;
@@ -308,7 +318,7 @@ public class PlayService {
 								lastType = card.getType();
 								lastCard = card;
 							}
-							boolean isSamePoint = points % 3 == 0;
+							boolean isSamePoint = sameCardCount == 2;
 							points = points % 10;
 							player.setPoints(points);
 							boolean isSameType = sameTypeCount == 2;
@@ -323,7 +333,7 @@ public class PlayService {
 								if (isStraight) {
 									player.setTimes(CardTimes.Straight);
 								} else if (isSamePoint) {
-									player.setTimes(CardTimes.TrippleSameType);
+									player.setTimes(CardTimes.SamePoints);
 								} else if (points == 0) {
 									player.setTimes(CardTimes.Bug);
 								} else {
@@ -357,7 +367,7 @@ public class PlayService {
 					if (player.equals(comparePlayer)) {
 						continue;
 					}
-					if(CardTimes.Bug.equals(player.getTimes()) && CardTimes.DoubleGhost.equals(comparePlayer.getTimes())) {
+					if (CardTimes.Bug.equals(player.getTimes()) && CardTimes.DoubleGhost.equals(comparePlayer.getTimes())) {
 						player.setStageAmount(player.getStageAmount() + comparePlayer.getTimes().getValue());
 					} else if (player.getTimes().getPriority() < comparePlayer.getTimes().getPriority()) {
 						player.setStageAmount(player.getStageAmount() + player.getTimes().getValue());
