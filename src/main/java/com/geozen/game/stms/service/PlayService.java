@@ -65,7 +65,7 @@ public class PlayService {
 		case End:
 			throw new BusinessException("游戏已结束");
 		case In:
-			throw new BusinessException("正在游玩中，不允许进入房间");
+			throw new BusinessException("游戏进行中，不允许进入房间");
 		}
 	}
 
@@ -209,7 +209,6 @@ public class PlayService {
 					}
 					if (ghostCount == 1) {
 						Collections.sort(player.getCards(), new Comparator<Card>() {
-
 							@Override
 							public int compare(Card o1, Card o2) {
 								Integer idx1 = o1.getIndex();
@@ -222,7 +221,7 @@ public class PlayService {
 								return idx1.compareTo(idx2);
 							}
 						});
-						int sameTypeCount = 0;
+						int sameTypeCount = 1;
 						int points = 0;
 						String lastType = null;
 						for (Card card : player.getCards()) {
@@ -234,7 +233,7 @@ public class PlayService {
 						}
 						points = points % 10;
 						player.setPoints(points);
-						boolean isSameType = sameTypeCount == 1;
+						boolean isSameType = sameTypeCount == 3;
 						int delta = player.getCards().get(2).getIndex() - player.getCards().get(1).getIndex();
 						if (delta > 0 && delta <= 2 || delta >= 11) {
 							if (isSameType) {
@@ -245,12 +244,14 @@ public class PlayService {
 						} else if (delta == 0) {
 							player.setTimes(CardTimes.SamePoints);
 						} else {
-							player.setTimes(CardTimes.General);
+							if (isSameType) {
+								player.setTimes(CardTimes.TrippleSameType);
+							}
 							player.setPoints(9);
 						}
 					} else {
 						if (player.getCards().size() == 2) {
-							int sameTypeCount = 0;
+							int sameTypeCount = 1;
 							int points = 0;
 							String lastType = null;
 							for (Card card : player.getCards()) {
@@ -267,7 +268,7 @@ public class PlayService {
 								player.setTimes(CardTimes.Bug);
 							} else {
 								boolean isGodPoints = points > 7;
-								boolean isSameType = sameTypeCount == 1;
+								boolean isSameType = sameTypeCount == 2;
 								if (isGodPoints) {
 									// 双倍天公
 									if (isSameType) {
@@ -285,11 +286,7 @@ public class PlayService {
 								}
 							}
 						} else {
-							int sameTypeCount = 0;
-							int points = 0;
-							String lastType = null;
 							Collections.sort(player.getCards(), new Comparator<Card>() {
-
 								@Override
 								public int compare(Card o1, Card o2) {
 									Integer i1 = o1.getIndex();
@@ -297,8 +294,11 @@ public class PlayService {
 									return i1.compareTo(i2);
 								}
 							});
-							int continueIndexCount = 0;
-							int sameCardCount = 0;
+							int sameTypeCount = 1;
+							int points = 0;
+							String lastType = null;
+							int continueIndexCount = 1;
+							int samePointCount = 1;
 							Card lastCard = null;
 							for (Card card : player.getCards()) {
 								points += card.getPoint();
@@ -317,7 +317,7 @@ public class PlayService {
 									}
 									}
 									if (lastCard.getIndex() == card.getIndex()) {
-										sameCardCount++;
+										samePointCount++;
 									}
 								}
 								if (lastType != null && lastType.equals(card.getType())) {
@@ -326,11 +326,11 @@ public class PlayService {
 								lastType = card.getType();
 								lastCard = card;
 							}
-							boolean isSamePoint = sameCardCount == 2;
+							boolean isSamePoint = samePointCount == 3;
 							points = points % 10;
 							player.setPoints(points);
-							boolean isSameType = sameTypeCount == 2;
-							boolean isStraight = continueIndexCount == 2;
+							boolean isSameType = sameTypeCount == 3;
+							boolean isStraight = continueIndexCount == 3;
 							if (isSameType) {
 								if (isStraight) {
 									player.setTimes(CardTimes.Flush);
