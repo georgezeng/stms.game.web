@@ -204,13 +204,13 @@ public class PlayService {
 
 							@Override
 							public int compare(Card o1, Card o2) {
-								if (room.getStage().getExtraGhost().equals(o1)) {
-									return -1;
-								} else if (room.getStage().getExtraGhost().equals(o2)) {
-									return 1;
-								}
 								Integer idx1 = o1.getIndex();
 								Integer idx2 = o2.getIndex();
+								if (room.getStage().getExtraGhost().getIndex() == idx1) {
+									return -1;
+								} else if (room.getStage().getExtraGhost().getIndex() == idx2) {
+									return 1;
+								}
 								return idx1.compareTo(idx2);
 							}
 						});
