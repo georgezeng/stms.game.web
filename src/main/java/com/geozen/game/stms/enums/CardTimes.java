@@ -13,9 +13,9 @@ public enum CardTimes {
 	SamePoints("三条", 5, 6),
 	Straight("顺子", 4, 7),
 	TrippleSameType("三倍", 3, 8),
-	DoubleSameType("两倍", 2, 9),
-	General("普通", 1, 10),
-	Bug("木虱", 0, 11)
+	DoubleSameType("两倍", 2, 8),
+	General("普通", 1, 8),
+	Bug("木虱", 0, 9)
 	;
 	private String name;
 	private int value;
