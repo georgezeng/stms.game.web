@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.geozen.game.stms.domain.PlayStage;
 import com.geozen.game.stms.domain.Player;
 import com.geozen.game.stms.domain.Room;
-import com.geozen.game.stms.dto.Cards;
 import com.geozen.game.stms.enums.Card;
 import com.geozen.game.stms.enums.CardTimes;
 import com.geozen.game.stms.enums.PlayerStatus;
@@ -58,16 +57,16 @@ public class PlayService {
 //		if (room.isOccupied(nickname)) {
 //			throw new BusinessException("用户已存在，请换个昵称");
 //		}
-		room.addPlayer(nickname);
-//		switch (room.getStatus()) {
-//		case Wait:
-//			room.addPlayer(nickname);
-//			break;
-//		case End:
-//			throw new BusinessException("游戏结束，不允许进入房间");
-//		case In:
-//			throw new BusinessException("正在游玩中，不允许进入房间");
-//		}
+		switch (room.getStatus()) {
+		case Calculated:
+		case Wait:
+			room.addPlayer(nickname);
+			break;
+		case End:
+			throw new BusinessException("游戏已结束");
+		case In:
+			throw new BusinessException("正在游玩中，不允许进入房间");
+		}
 	}
 
 	/**
@@ -81,10 +80,16 @@ public class PlayService {
 		if (room == null) {
 			throw new BusinessException("没有此房间");
 		}
-		if (room.getStatus().equals(RoomStatus.In)) {
-			throw new BusinessException("正在游戏中，不能退出");
-		} else if (room.getStatus().equals(RoomStatus.Wait)) {
+//		if (room.getStatus().equals(RoomStatus.In)) {
+//			throw new BusinessException("正在游戏中，不能退出");
+//		} else if (room.getStatus().equals(RoomStatus.Wait)) {
+//			room.removePlayer(nickname);
+//		}
+		if (RoomStatus.Wait.equals(room.getStatus())) {
 			room.removePlayer(nickname);
+		} else {
+			Player player = room.getPlayer(nickname);
+			player.setStatus(PlayerStatus.Exit);
 		}
 	}
 
@@ -105,7 +110,10 @@ public class PlayService {
 		if (room.getPlayers().size() < 2) {
 			throw new BusinessException("必须2个人以上才能游戏");
 		}
-		room.getPlayers().stream().forEach(player -> player.reset());
+		room.getPlayers().stream().forEach(player -> {
+			if (!PlayerStatus.Exit.equals(player.getStatus()))
+				player.reset();
+		});
 		PlayStage stage = new PlayStage();
 		stage.setPlayers(new ArrayList<>(room.getPlayers()));
 		stage.assginCards(2); // 每人两张牌
@@ -381,6 +389,7 @@ public class PlayService {
 				}
 				player.setAmount(player.getAmount() + player.getStageAmount());
 			}
+			room.setStatus(RoomStatus.Calculated);
 		}
 	}
 

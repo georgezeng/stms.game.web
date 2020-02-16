@@ -5,6 +5,7 @@ import java.util.Stack;
 
 import com.geozen.game.stms.dto.Cards;
 import com.geozen.game.stms.enums.Card;
+import com.geozen.game.stms.enums.PlayerStatus;
 import com.geozen.game.stms.exception.BusinessException;
 
 public class PlayStage {
@@ -18,7 +19,9 @@ public class PlayStage {
 	}
 
 	public void nextTurn() {
-		this.currentPlayerIndex++;
+		do {
+			this.currentPlayerIndex++;
+		} while (currentPlayerIndex < players.size() && PlayerStatus.Exit.equals(players.get(currentPlayerIndex).getStatus()));
 	}
 
 	public int getCurrentTurn() {
@@ -40,13 +43,15 @@ public class PlayStage {
 	public void assginCards(int count) {
 		for (int i = 0; i < count; i++) {
 			for (Player player : players) {
-				player.addCards(cards.pop());
+				if (PlayerStatus.Ready.equals(player.getStatus())) {
+					player.addCards(cards.pop());
+				}
 			}
 		}
 	}
 
 	public void fillCard(Player player) {
-		if (player.getCards().size() < 3) {
+		if (PlayerStatus.Ready.equals(player.getStatus()) && player.getCards().size() < 3) {
 			player.addCards(cards.pop());
 			return;
 		}

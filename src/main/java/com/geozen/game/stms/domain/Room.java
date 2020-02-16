@@ -3,6 +3,7 @@ package com.geozen.game.stms.domain;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.geozen.game.stms.enums.PlayerStatus;
 import com.geozen.game.stms.enums.RoomStatus;
 import com.geozen.game.stms.exception.BusinessException;
 
@@ -55,10 +56,19 @@ public class Room {
 	}
 
 	public void addPlayer(String nickname) {
-		if (players.size() > 9) {
+		if (players.size() > 10) {
 			throw new BusinessException("无法进入房间，人员已满");
 		}
 		players.add(new Player(players.size(), nickname));
+		Player player = getPlayer(nickname);
+		if (PlayerStatus.Exit.equals(player.getStatus())) {
+			player.setStatus(PlayerStatus.Locked);
+		} else {
+			player.reset();
+			if (RoomStatus.Calculated.equals(status)) {
+				player.setStatus(PlayerStatus.Locked);
+			}
+		}
 	}
 
 	public String getNumber() {
