@@ -56,7 +56,7 @@ public class Room {
 	}
 
 	public void addPlayer(String nickname) {
-		if (players.size() > 10) {
+		if (players.size() > 9) {
 			throw new BusinessException("无法进入房间，人员已满");
 		}
 		players.add(new Player(players.size(), nickname));
