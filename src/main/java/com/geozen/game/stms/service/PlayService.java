@@ -365,7 +365,7 @@ public class PlayService {
 	 * @param roomNumber
 	 * @param nickname
 	 */
-	public RoomStatus calResult(String roomNumber, String nickname) {
+	public void calResult(String roomNumber, String nickname) {
 		Room room = roomMap.get(roomNumber);
 		if (room != null) {
 			if (!room.isHost(nickname)) {
@@ -392,9 +392,7 @@ public class PlayService {
 				player.setAmount(player.getAmount() + player.getStageAmount());
 			}
 			room.setStatus(RoomStatus.Calculated);
-			return room.getStatus();
 		}
-		return null;
 	}
 
 }

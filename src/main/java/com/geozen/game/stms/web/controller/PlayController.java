@@ -63,8 +63,9 @@ public class PlayController {
 	}
 
 	@RequestMapping(path = "/calResult/{roomNumber}/{nickname}")
-	public ResultBean<RoomStatus> calResult(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
-		return new ResultBean<>(service.calResult(roomNumber, nickname));
+	public ResultBean<Void> calResult(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
+		service.calResult(roomNumber, nickname);
+		return new ResultBean<>();
 	}
 
 }
