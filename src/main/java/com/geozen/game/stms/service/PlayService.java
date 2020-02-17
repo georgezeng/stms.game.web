@@ -221,15 +221,19 @@ public class PlayService {
 								return idx1.compareTo(idx2);
 							}
 						});
-						int sameTypeCount = 1;
+						int sameTypeCount = 0;
 						int points = 0;
 						String lastType = null;
 						for (Card card : player.getCards()) {
 							points += card.getPoint();
-							if (lastType != null && lastType.equals(card.getType())) {
+							if (lastType == null || lastType.equals(card.getType())) {
 								sameTypeCount++;
 							}
-							lastType = card.getType();
+							if (room.getStage().getExtraGhost().getIndex() == card.getIndex()) {
+								lastType = null;
+							} else {
+								lastType = card.getType();
+							}
 						}
 						points = points % 10;
 						player.setPoints(points);

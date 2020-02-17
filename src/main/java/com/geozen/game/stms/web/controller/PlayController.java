@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.geozen.game.stms.domain.Room;
 import com.geozen.game.stms.dto.ResultBean;
-import com.geozen.game.stms.enums.RoomStatus;
 import com.geozen.game.stms.service.PlayService;
 
 @RestController
