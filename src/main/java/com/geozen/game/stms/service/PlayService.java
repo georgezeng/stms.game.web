@@ -1,8 +1,10 @@
 package com.geozen.game.stms.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -229,7 +231,7 @@ public class PlayService {
 							if (lastType == null || lastType.equals(card.getType())) {
 								sameTypeCount++;
 							}
-							if (room.getStage().getExtraGhost().getIndex() == card.getIndex()) {
+							if (card.getIndex() == 0 || room.getStage().getExtraGhost().getIndex() == card.getIndex()) {
 								lastType = null;
 							} else {
 								lastType = card.getType();
@@ -247,6 +249,7 @@ public class PlayService {
 							}
 						} else if (delta == 0) {
 							player.setTimes(CardTimes.SamePoints);
+							player.setPoints(player.getCards().get(0).getIndex());
 						} else {
 							if (isSameType) {
 								player.setTimes(CardTimes.TrippleSameType);
@@ -362,6 +365,22 @@ public class PlayService {
 			}
 		}
 	}
+	
+//	public static void main(String[] args) {
+//		PlayService p = new PlayService();
+//		String nickname = "test";
+//		String roomNumber = p.create(nickname);
+//		Room room = p.get(roomNumber);
+//		Player py = room.getPlayer(nickname);
+//		PlayStage stage = new PlayStage();
+//		stage.setPlayers(Arrays.asList(py));
+//		room.setStage(stage);
+//		py.addCards(Card.JK1);
+//		py.addCards(Card.H2);
+//		py.addCards(Card.HJ);
+//		p.lock(roomNumber, nickname, false);
+//		System.out.println(py.getTimes().getName() + ", " + py.getPoints());
+//	}
 
 	/**
 	 * 计算结果
