@@ -233,7 +233,7 @@ public class PlayService {
 						}
 						points = points % 10;
 						player.setPoints(points);
-						boolean isSameType = sameTypeCount == 2;
+						boolean isSameType = sameTypeCount == 3;
 						int delta = player.getCards().get(2).getIndex() - player.getCards().get(1).getIndex();
 						if (delta > 0 && delta <= 2 || delta >= 11) {
 							if (isSameType) {
