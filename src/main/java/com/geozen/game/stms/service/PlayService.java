@@ -304,29 +304,18 @@ public class PlayService {
 							int sameTypeCount = 1;
 							int points = 0;
 							String lastType = null;
-							int continueIndexCount = 1;
+							boolean isStraight = false;
 							int samePointCount = 1;
-							Card lastCard = null;
+							Card firstCard = player.getCards().get(0);
+							Card middleCard = player.getCards().get(1);
+							Card lastCard = player.getCards().get(2);
+							if (middleCard.getIndex() - firstCard.getIndex() == 1 || middleCard.getIndex() - firstCard.getIndex() == 11) {
+								if (lastCard.getIndex() - middleCard.getIndex() == 1 || lastCard.getIndex() - middleCard.getIndex() == 11) {
+									isStraight = true;
+								}
+							}
 							for (Card card : player.getCards()) {
 								points += card.getPoint();
-								if (lastCard != null) {
-									switch (lastCard.getIndex()) {
-									case 13: {
-										if (card.getIndex() == 1) {
-											continueIndexCount++;
-										}
-									}
-										break;
-									default: {
-										if (card.getIndex() - lastCard.getIndex() == 1) {
-											continueIndexCount++;
-										}
-									}
-									}
-									if (lastCard.getIndex() == card.getIndex()) {
-										samePointCount++;
-									}
-								}
 								if (lastType != null && lastType.equals(card.getType())) {
 									sameTypeCount++;
 								}
@@ -337,7 +326,6 @@ public class PlayService {
 							points = points % 10;
 							player.setPoints(points);
 							boolean isSameType = sameTypeCount == 3;
-							boolean isStraight = continueIndexCount == 3;
 							if (isSameType) {
 								if (isStraight) {
 									player.setTimes(CardTimes.Flush);
@@ -349,6 +337,7 @@ public class PlayService {
 									player.setTimes(CardTimes.Straight);
 								} else if (isSamePoint) {
 									player.setTimes(CardTimes.SamePoints);
+									player.setPoints(player.getCards().get(0).getIndex());
 								} else if (points == 0) {
 									player.setTimes(CardTimes.Bug);
 								} else {
@@ -363,7 +352,7 @@ public class PlayService {
 			}
 		}
 	}
-	
+
 //	public static void main(String[] args) {
 //		PlayService p = new PlayService();
 //		String nickname = "test";
@@ -371,11 +360,11 @@ public class PlayService {
 //		Room room = p.get(roomNumber);
 //		Player py = room.getPlayer(nickname);
 //		PlayStage stage = new PlayStage();
-//		stage.setPlayers(Arrays.asList(py));
+//		stage.setPlayers(java.util.Arrays.asList(py));
 //		room.setStage(stage);
-//		py.addCards(Card.JK1);
-//		py.addCards(Card.H2);
-//		py.addCards(Card.HJ);
+//		py.addCards(Card.DA);
+//		py.addCards(Card.HQ);
+//		py.addCards(Card.CK);
 //		p.lock(roomNumber, nickname, false);
 //		System.out.println(py.getTimes().getName() + ", " + py.getPoints());
 //	}
