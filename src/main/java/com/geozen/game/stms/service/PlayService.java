@@ -247,7 +247,7 @@ public class PlayService {
 							}
 						} else if (delta == 0) {
 							player.setTimes(CardTimes.SamePoints);
-							player.setPoints(player.getCards().get(0).getIndex());
+							player.setPoints(player.getCards().get(1).getIndex());
 						} else {
 							if (isSameType) {
 								player.setTimes(CardTimes.TrippleSameType);
@@ -362,9 +362,9 @@ public class PlayService {
 //		PlayStage stage = new PlayStage();
 //		stage.setPlayers(java.util.Arrays.asList(py));
 //		room.setStage(stage);
-//		py.addCards(Card.DA);
-//		py.addCards(Card.HQ);
-//		py.addCards(Card.CK);
+//		py.addCards(Card.C9);
+//		py.addCards(Card.H7);
+//		py.addCards(Card.C7);
 //		p.lock(roomNumber, nickname, false);
 //		System.out.println(py.getTimes().getName() + ", " + py.getPoints());
 //	}
@@ -396,6 +396,10 @@ public class PlayService {
 					} else if (player.getPoints() > comparePlayer.getPoints()) {
 						player.setStageAmount(player.getStageAmount() + player.getTimes().getValue());
 					} else if (player.getPoints() < comparePlayer.getPoints()) {
+						player.setStageAmount(player.getStageAmount() - comparePlayer.getTimes().getValue());
+					} else if (player.getTimes().getValue() > comparePlayer.getTimes().getValue()) {
+						player.setStageAmount(player.getStageAmount() + player.getTimes().getValue());
+					} else if (player.getTimes().getValue() < comparePlayer.getTimes().getValue()) {
 						player.setStageAmount(player.getStageAmount() - comparePlayer.getTimes().getValue());
 					}
 				}

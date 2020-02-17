@@ -12,7 +12,7 @@ public class PlayStage {
 	private Stack<Card> cards = Cards.shuffle();
 	private List<Player> players;
 	private int currentPlayerIndex;
-	private Card extraGhost = Cards.shuffleForExtraGhost().firstElement();
+	private Card extraGhost = Card.S9;//Cards.shuffleForExtraGhost().firstElement();
 
 	public Card getExtraGhost() {
 		return extraGhost;
