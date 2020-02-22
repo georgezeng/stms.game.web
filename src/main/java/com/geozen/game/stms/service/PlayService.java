@@ -3,6 +3,7 @@ package com.geozen.game.stms.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -208,7 +209,8 @@ public class PlayService {
 						throw new BusinessException("必须补牌");
 					}
 					if (ghostCount == 1) {
-						Collections.sort(player.getCards(), new Comparator<Card>() {
+						List<Card> sortedCards = new ArrayList<>(player.getCards());
+						Collections.sort(sortedCards, new Comparator<Card>() {
 							@Override
 							public int compare(Card o1, Card o2) {
 								Integer idx1 = o1.getIndex();
@@ -224,7 +226,7 @@ public class PlayService {
 						int sameTypeCount = 0;
 						int points = 0;
 						String lastType = null;
-						for (Card card : player.getCards()) {
+						for (Card card : sortedCards) {
 							points += card.getPoint();
 							if (lastType == null || lastType.equals(card.getType())) {
 								sameTypeCount++;
@@ -238,7 +240,7 @@ public class PlayService {
 						points = points % 10;
 						player.setPoints(points);
 						boolean isSameType = sameTypeCount == 3;
-						int delta = player.getCards().get(2).getIndex() - player.getCards().get(1).getIndex();
+						int delta = sortedCards.get(2).getIndex() - sortedCards.get(1).getIndex();
 						if (delta > 0 && delta <= 2 || delta >= 11) {
 							if (isSameType) {
 								player.setTimes(CardTimes.Flush);
@@ -247,7 +249,7 @@ public class PlayService {
 							}
 						} else if (delta == 0) {
 							player.setTimes(CardTimes.SamePoints);
-							player.setPoints(player.getCards().get(1).getIndex());
+							player.setPoints(sortedCards.get(1).getIndex());
 						} else {
 							if (isSameType) {
 								player.setTimes(CardTimes.TrippleSameType);
@@ -293,7 +295,8 @@ public class PlayService {
 								}
 							}
 						} else {
-							Collections.sort(player.getCards(), new Comparator<Card>() {
+							List<Card> sortedCards = new ArrayList<>(player.getCards());
+							Collections.sort(sortedCards, new Comparator<Card>() {
 								@Override
 								public int compare(Card o1, Card o2) {
 									Integer i1 = o1.getIndex();
@@ -306,15 +309,15 @@ public class PlayService {
 							String lastType = null;
 							boolean isStraight = false;
 							int samePointCount = 1;
-							Card firstCard = player.getCards().get(0);
-							Card middleCard = player.getCards().get(1);
-							Card lastCard = player.getCards().get(2);
+							Card firstCard = sortedCards.get(0);
+							Card middleCard = sortedCards.get(1);
+							Card lastCard = sortedCards.get(2);
 							if (middleCard.getIndex() - firstCard.getIndex() == 1 || middleCard.getIndex() - firstCard.getIndex() == 11) {
 								if (lastCard.getIndex() - middleCard.getIndex() == 1 || lastCard.getIndex() - middleCard.getIndex() == 11) {
 									isStraight = true;
 								}
 							}
-							for (Card card : player.getCards()) {
+							for (Card card : sortedCards) {
 								points += card.getPoint();
 								if (lastType != null && lastType.equals(card.getType())) {
 									sameTypeCount++;
@@ -337,7 +340,7 @@ public class PlayService {
 									player.setTimes(CardTimes.Straight);
 								} else if (isSamePoint) {
 									player.setTimes(CardTimes.SamePoints);
-									player.setPoints(player.getCards().get(0).getIndex());
+									player.setPoints(sortedCards.get(0).getIndex());
 								} else if (points == 0) {
 									player.setTimes(CardTimes.Bug);
 								} else {
