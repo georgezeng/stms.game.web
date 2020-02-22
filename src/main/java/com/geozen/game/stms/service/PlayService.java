@@ -108,7 +108,13 @@ public class PlayService {
 		if (!room.isHost(nickname)) {
 			throw new BusinessException("不是房主，不能开始发牌");
 		}
-		if (room.getPlayers().size() < 2) {
+		int count = 0;
+		for (Player player : room.getPlayers()) {
+			if (!PlayerStatus.Exit.equals(player.getStatus())) {
+				count++;
+			}
+		}
+		if (count < 2) {
 			throw new BusinessException("必须2个人以上才能游戏");
 		}
 		room.getPlayers().stream().forEach(player -> {
@@ -385,6 +391,9 @@ public class PlayService {
 				throw new BusinessException("不是房主，不能计算结果");
 			}
 			for (Player player : room.getPlayers()) {
+				if (PlayerStatus.Exit.equals(player.getStatus())) {
+					continue;
+				}
 				player.setStageAmount(0);
 				for (Player comparePlayer : room.getPlayers()) {
 					if (player.equals(comparePlayer)) {
