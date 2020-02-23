@@ -55,19 +55,25 @@ public class PlayService {
 		if (room == null) {
 			throw new BusinessException("没有此房间");
 		}
-		Player player = room.getPlayer(nickname);
-		if (player != null && !PlayerStatus.Exit.equals(player.getStatus())) {
-			throw new BusinessException("用户已存在，请换个昵称");
-		}
+
+//		if (player != null && !PlayerStatus.Exit.equals(player.getStatus())) {
+//			throw new BusinessException("用户已存在，请换个昵称");
+//		}
 		switch (room.getStatus()) {
 		case Calculated:
-		case Wait:
+		case Wait: {
 			room.addPlayer(nickname);
+		}
+			break;
+		case In: {
+			Player player = room.getPlayer(nickname);
+			if (player == null) {
+				throw new BusinessException("游戏进行中，不能加入");
+			}
+		}
 			break;
 		case End:
 			throw new BusinessException("游戏已结束");
-		case In:
-			throw new BusinessException("游戏进行中，不允许进入房间");
 		}
 	}
 
