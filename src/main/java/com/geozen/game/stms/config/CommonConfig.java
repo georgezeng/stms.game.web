@@ -15,6 +15,8 @@ import org.springframework.web.client.RestTemplate;
 //@EnableAspectJAutoProxy
 //@EnableRedisRepositories(basePackages = "com.sourcecode.malls.repository.redis.impl")
 public class CommonConfig {
+//	public static final String WEB_CONTEXT = "/s";
+	public static final String WEB_CONTEXT = "";
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
