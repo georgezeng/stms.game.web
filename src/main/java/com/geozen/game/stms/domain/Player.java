@@ -22,6 +22,10 @@ public class Player {
 		this.nickname = nickname;
 	}
 
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
 	public int getStageAmount() {
 		return stageAmount;
 	}

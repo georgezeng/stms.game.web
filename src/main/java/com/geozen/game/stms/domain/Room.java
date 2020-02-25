@@ -53,6 +53,10 @@ public class Room {
 
 	public void removePlayer(String nickname) {
 		players.remove(new Player(nickname));
+		int index = 0;
+		for (Player player : players) {
+			player.setIndex(index++);
+		}
 	}
 
 	public void addPlayer(String nickname) {

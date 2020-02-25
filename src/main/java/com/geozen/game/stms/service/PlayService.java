@@ -51,7 +51,7 @@ public class PlayService {
 	 * @param roomNumber
 	 * @param nickname
 	 */
-	public void join(String roomNumber, String nickname) {
+	public boolean join(String roomNumber, String nickname) {
 		Room room = roomMap.get(roomNumber);
 		if (room == null) {
 			throw new BusinessException("没有此房间");
@@ -76,6 +76,7 @@ public class PlayService {
 		case End:
 			throw new BusinessException("游戏已结束");
 		}
+		return room.getHost().equals(nickname);
 	}
 
 	/**

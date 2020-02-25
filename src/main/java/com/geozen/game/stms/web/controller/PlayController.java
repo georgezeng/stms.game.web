@@ -25,9 +25,8 @@ public class PlayController {
 	}
 
 	@RequestMapping(path = "/joinRoom/{roomNumber}/{nickname}")
-	public ResultBean<Void> join(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
-		service.join(roomNumber, nickname);
-		return new ResultBean<>();
+	public ResultBean<Boolean> join(@PathVariable("roomNumber") String roomNumber, @PathVariable("nickname") String nickname) {
+		return new ResultBean<>(service.join(roomNumber, nickname));
 	}
 
 	@RequestMapping(path = "/exitRoom/{roomNumber}/{nickname}")
