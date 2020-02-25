@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableConfigurationProperties
+//@EnableScheduling
 //@EnableCaching
 //@EnableRedisHttpSession
 //@EnableAsync

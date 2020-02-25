@@ -61,6 +61,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.csrf().disable();
 		http.httpBasic().disable();
 		http.formLogin().permitAll();
+		http.headers().frameOptions().sameOrigin();
 		http.userDetailsService(userDetailsService);
 		http.authorizeRequests().antMatchers("/actuator/health").permitAll();
 		http.authorizeRequests().antMatchers("/actuator/**").authenticated();

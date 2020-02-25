@@ -37,6 +37,7 @@ public class PlayService {
 				Room room = new Room();
 				room.setHost(nickname);
 				room.addPlayer(nickname);
+				room.setNumber(roomNumber);
 				room.setStatus(RoomStatus.Wait);
 				roomMap.put(roomNumber, room);
 				return roomNumber;
