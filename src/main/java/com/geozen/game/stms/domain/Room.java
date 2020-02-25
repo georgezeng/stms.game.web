@@ -68,9 +68,10 @@ public class Room {
 		if (PlayerStatus.Exit.equals(player.getStatus())) {
 			player.setStatus(PlayerStatus.Locked);
 		} else {
-			player.reset();
 			if (RoomStatus.Calculated.equals(status)) {
 				player.setStatus(PlayerStatus.Locked);
+			} else {
+				player.reset();
 			}
 		}
 	}
